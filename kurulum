@@ -1,12 +1,17 @@
+Centos 8.2 kurulumu yap
+işletim sistemi kurulumu yaparken server install kısmından yap. GUI yok.
+
 rpm -Uvh https://repo.zabbix.com/zabbix/5.2/rhel/8/x86_64/zabbix-release-5.2-1.el8.noarch.rpm
 dnf install -y zabbix-server-mysql zabbix-web-mysql zabbix-apache-conf zabbix-agent2
 dnf -y install mariadb-server && systemctl start mariadb && systemctl enable mariadb
 mysql_secure_installation
+
 mysql root şifresini ver XXX
 mysql remove anonymous users Y
 mysql Disallow root login remotely? Y
 mysql Remove test database and access to it? Y
 mysql Reload privilege tables now? Y
+
 mysql -u root -p'XXX' -e "create database zabbix character set utf8 collate utf8_bin;"
 mysql -uroot -p'XXX' -e "grant all privileges on zabbix.* to zabbix@localhost identified by 'XXX';"
 mysql -u root -p'XXX' zabbix -e "set global innodb_strict_mode='OFF';"
@@ -23,5 +28,10 @@ systemctl restart zabbix-server zabbix-agent2 && systemctl enable zabbix-server 
 firewall-cmd --add-service={http,https} --permanent
 firewall-cmd --add-port={10051/tcp,10050/tcp} --permanent
 firewall-cmd --reload
+
+Bu arada localhost/zabbix web login yap
+mysql kullanıcı adı ve şifreleri gir
+kurulumu tamamla.
+
 nano /etc/zabbix/web/zabbix.conf.php
 $ZBX_SERVER_NAME      = 'zabbix' yap
