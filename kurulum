@@ -1,0 +1,27 @@
+rpm -Uvh https://repo.zabbix.com/zabbix/5.2/rhel/8/x86_64/zabbix-release-5.2-1.el8.noarch.rpm
+dnf install -y zabbix-server-mysql zabbix-web-mysql zabbix-apache-conf zabbix-agent2
+dnf -y install mariadb-server && systemctl start mariadb && systemctl enable mariadb
+mysql_secure_installation
+mysql root şifresini ver mksistemsas.com
+mysql remove anonymous users Y
+mysql Disallow root login remotely? Y
+mysql Remove test database and access to it? Y
+mysql Reload privilege tables now? Y
+mysql -u root -p'XXX' -e "create database zabbix character set utf8 collate utf8_bin;"
+mysql -uroot -p'XXX' -e "grant all privileges on zabbix.* to zabbix@localhost identified by 'XXX';"
+mysql -u root -p'XXX' zabbix -e "set global innodb_strict_mode='OFF';"
+zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql -uzabbix -p'nksistemsas.com' zabbix
+mysql -u root -p'XXX' zabbix -e "set global innodb_strict_mode='ON';"
+dnf install -y policycoreutils-python-utils
+semanage permissive -a zabbix_t
+setsebool -P httpd_can_network_connect on
+nano /etc/zabbix/zabbix_server.conf
+nano /etc/php-fpm.d/zabbix.conf
+php_value date.timezone Europe/Riga
+systemctl restart httpd php-fpm && systemctl enable httpd php-fpm
+systemctl restart zabbix-server zabbix-agent2 && systemctl enable zabbix-server zabbix-agent2
+firewall-cmd --add-service={http,https} --permanent
+firewall-cmd --add-port={10051/tcp,10050/tcp} --permanent
+firewall-cmd --reload
+nano /etc/zabbix/web/zabbix.conf.php
+$ZBX_SERVER_NAME      = 'zabbix' yap
